@@ -70,7 +70,7 @@ describe('Section 1: Visual tests', () => {
         cy.get('#city').find('option').eq(1).should('not.be.selected')
     })
 
-    it.only('Check that checkbox list is correct', () => {
+    it('Check that checkbox list is correct', () => {
         cy.get('input[type="checkbox"]').should('have.length', 2)
 
         //content check
@@ -119,33 +119,50 @@ Task list:
  */
 describe('Section 2: Functional tests', () => {
 
-    it.only('Check that user can register with all fields filled', () => {
+    it('Check that user can register by filling all fields', () => {
         cy.get('#name').type('kudo')
         cy.get('input[name="email"]').type('kudo@mail.ee')
         cy.get('#country').select(1).should('have.value', 'object:3')
         cy.get('#city').select(1)
-        cy.get('input[type="date"]').eq(0).type('2020-01-01').should('have.text','2020-01-01')
-        cy.get('input[type="date"]').eq(0).type('2020-01-01').should('have.text','2020-01-01')
-
+        cy.get('input[type="date"]').eq(0).type('2020-01-01').should('have.value','2020-01-01')
+        cy.get('input[type="radio"]').eq(0).check().should('be.checked')
+        cy.get('#birthday').type('1999-01-01').should('have.value','1999-01-01') 
         cy.get('input[type="checkbox"]').eq(0).check().should('be.checked')
         cy.get('input[type="checkbox"]').eq(1).check().should('be.checked')
         cy.get('input[type="submit"]').should('not.be.disabled')
         cy.get('input[type="submit"]').click()
-        cy.get('#successFrame').should('be.visible').and('contain', 'Successful registration')  
+        cy.get('h1').should('contain', 'Submission received')
     })
-    it('Check that user can register with only mandatory fields filled', () => {
-        cy.get('#name').type('GTest')
-        cy.get('input[name="email"]').type('email@email.com')
-        cy.get('#successFrame').siblings('input[type="submit"]').should('not.be.disabled')
-        cy.get('#successFrame').siblings('input[type="submit"]').click()
-        cy.get('#successFrame').should('be.visible').and('contain', 'Successful registration')
- 
+    it('Check that user can register with only mandatory fields', () => {
+        cy.get('input[name="email"]').type('kudo@mail.ee')
+        cy.get('#country').select(1).should('have.value', 'object:3')
+        cy.get('#city').select(1)
+        cy.get('input[type="checkbox"]').eq(0).check().should('be.checked')
+        cy.get('input[type="submit"]').should('not.be.disabled')
+        cy.get('input[type="submit"]').click()
+        cy.get('h1').should('contain', 'Submission received')
     })
     it('Check that user cannot register without mandatory section', () => {
-        
+        inputInValidData('kudo si')
+        cy.get('#successFrame').should('not.be.visible')
     })
    
     
     it('Check that user can add a file', () => {
-    
+        uploadfile()
+        cy.get('h1').should('contain', 'Submission received')
     })
+})
+function inputInValidData(username) {
+    // inputs data without madotary fields 
+    cy.get('#name').type('kudo')
+    cy.get('input[type="date"]').eq(0).type('2020-01-01').should('have.value','2020-01-01')
+    cy.get('input[type="radio"]').eq(0).check().should('be.checked')
+    cy.get('#birthday').type('1999-01-01').should('have.value','1999-01-01') 
+    cy.get('input[type="checkbox"]').eq(1).check().should('be.checked')
+}
+
+function uploadfile(myFile) {
+    cy.get('#myFile').selectFile('cypress/fixtures/cypress_logo.png')
+    cy.get('#myFile').next().click()
+    }
